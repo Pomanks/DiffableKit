@@ -1,0 +1,54 @@
+//
+//  DKCollectionView.swift
+//
+//
+//  Created by Antoine Barré on 5/19/22.
+//
+
+import Foundation
+import UIKit
+
+public final class DKCollectionView<LayoutDescription>: UICollectionView where LayoutDescription: DKCollectionViewCompositionalLayoutDescription {
+
+    // MARK: Initializers
+
+    public init(frame: CGRect, layout description: LayoutDescription) {
+        let layout = description.makeCompositionalLayout()
+
+        super.init(frame: frame, collectionViewLayout: layout)
+
+        preservesSuperviewLayoutMargins = true
+    }
+
+    @available(*, unavailable)
+    override public init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
+        fatalError("init(frame:collectionViewLayout:) has not been implemented")
+    }
+
+    @available(*, unavailable)
+    public required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: Lifecycle
+
+    public func configure(with parent: UIViewController) {
+        delegate = parent as? UICollectionViewDelegate
+        prefetchDataSource = parent as? UICollectionViewDataSourcePrefetching
+        dragDelegate = parent as? UICollectionViewDragDelegate
+        dropDelegate = parent as? UICollectionViewDropDelegate
+
+        isPrefetchingEnabled = prefetchDataSource != nil
+    }
+
+    public func add(to superview: UIView?) {
+        guard let view = superview else {
+            return
+        }
+        autoresizingMask = [
+            .flexibleWidth,
+            .flexibleHeight,
+        ]
+        view.addSubview(self)
+    }
+}
