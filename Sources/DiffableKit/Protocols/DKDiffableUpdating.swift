@@ -13,7 +13,7 @@ public protocol DKDiffableUpdating: NSObject, NSFetchedResultsControllerDelegate
     associatedtype SectionIdentifierType: Hashable & RawRepresentable
     associatedtype ItemIdentifierType: Hashable
 
-    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
+    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshotReference) -> Void
     typealias SnapshotHandler = (inout NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
     typealias SectionSnapshotHandler = (inout NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>) -> Void
 

@@ -33,8 +33,6 @@ public final class DKDiffableUpdater<Configuration>: NSObject, NSFetchedResultsC
     public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
                            didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
 
-        let snapshot = snapshot as NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
-
         fetchedResultsControllerDidChangeContentWithSnapshotHandler?(controller, snapshot)
     }
 }
