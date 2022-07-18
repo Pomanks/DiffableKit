@@ -1,5 +1,5 @@
 //
-//  DKDiffableUpdating.swift
+//  DKDiffableDataSourceUpdating.swift
 //
 //
 //  Created by Antoine Barré on 5/19/22.
@@ -9,11 +9,11 @@ import CoreData
 import Foundation
 import UIKit
 
-public protocol DKDiffableUpdating: NSObject, NSFetchedResultsControllerDelegate {
+public protocol DKDiffableDataSourceUpdating: NSObject, NSFetchedResultsControllerDelegate {
     associatedtype SectionIdentifierType: Hashable & RawRepresentable
     associatedtype ItemIdentifierType: Hashable
 
-    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
+    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshotReference) -> Void
     typealias SnapshotHandler = (inout NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
     typealias SectionSnapshotHandler = (inout NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>) -> Void
 
@@ -28,6 +28,10 @@ public protocol DKDiffableUpdating: NSObject, NSFetchedResultsControllerDelegate
 
     func apply(animatingDifferences: Bool, completion: (() -> Void)?)
     func applySnapshotUsingReloadData(animatingDifferences: Bool, completion: (() -> Void)?)
+
+    func apply(_ snapshot: NSDiffableDataSourceSnapshotReference,
+               animatingDifferences: Bool,
+               completion: (() -> Void)?)
 
     func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
                animatingDifferences: Bool,
@@ -59,7 +63,14 @@ public protocol DKDiffableUpdating: NSObject, NSFetchedResultsControllerDelegate
 
 // MARK: - Convenience
 
-public extension DKDiffableUpdating {
+public extension DKDiffableDataSourceUpdating {
+
+    func apply(_ snapshot: NSDiffableDataSourceSnapshotReference,
+               animatingDifferences: Bool = true,
+               completion: (() -> Void)? = nil) {
+
+        apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
+    }
 
     func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
                animatingDifferences: Bool = true,

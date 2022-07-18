@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  DKDiffableDataSourceUpdater+DKDiffableUpdating.swift
 //
 //
 //  Created by Antoine Barré on 6/1/22.
@@ -8,9 +8,11 @@
 import Foundation
 import UIKit
 
-// MARK: - DKDiffableUpdating
+// MARK: - DKDiffableDataSourceUpdating
 
-extension DKDiffableUpdater: DKDiffableUpdating {
+extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
+    public typealias SectionIdentifierType = Configuration.SectionIdentifierType
+    public typealias ItemIdentifierType = Configuration.ItemIdentifierType
 
     // MARK: Updating Data
 
@@ -34,9 +36,18 @@ extension DKDiffableUpdater: DKDiffableUpdating {
         return self
     }
 
+    public func apply(_ snapshot: NSDiffableDataSourceSnapshotReference,
+                      animatingDifferences: Bool = true,
+                      completion: (() -> Void)? = nil) {
+
+        let snapshot = snapshot as NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
+
+        apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
+    }
+
     public func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
                       animatingDifferences: Bool = true,
-                      completion: (() -> Void)?) {
+                      completion: (() -> Void)? = nil) {
 
         diffableDataSource.apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
     }
@@ -119,7 +130,8 @@ extension DKDiffableUpdater: DKDiffableUpdating {
 
             if #available(iOS 15.0, *) {
                 snapshot.reconfigureItems(existingItemIdentifiers.isEmpty ? snapshot.itemIdentifiers : existingItemIdentifiers)
-            } else {
+            }
+            else {
                 snapshot.reloadItems(existingItemIdentifiers.isEmpty ? snapshot.itemIdentifiers : existingItemIdentifiers)
             }
         }
@@ -131,7 +143,8 @@ extension DKDiffableUpdater: DKDiffableUpdating {
 
             if #available(iOS 15.0, *) {
                 snapshot.reconfigureItems(items)
-            } else {
+            }
+            else {
                 snapshot.reloadItems(items)
             }
         }
@@ -144,7 +157,8 @@ extension DKDiffableUpdater: DKDiffableUpdating {
 
                 if #available(iOS 15.0, *) {
                     snapshot.reconfigureItems(items)
-                } else {
+                }
+                else {
                     snapshot.reloadItems(items)
                 }
             }
@@ -169,7 +183,8 @@ extension DKDiffableUpdater: DKDiffableUpdating {
         return currentSectionSnapshot(in: section) { sectionSnapshot in
             if sectionSnapshot.isExpanded(item) {
                 sectionSnapshot.collapse([item])
-            } else {
+            }
+            else {
                 sectionSnapshot.expand([item])
 
                 if shouldCollapseOtherItemsWhenExpanded {
@@ -191,7 +206,8 @@ extension DKDiffableUpdater: DKDiffableUpdating {
             }
             if sectionSnapshot.isExpanded(parent) {
                 sectionSnapshot.collapse([parent])
-            } else {
+            }
+            else {
                 sectionSnapshot.expand([parent])
             }
         }
@@ -209,7 +225,8 @@ extension DKDiffableUpdater: DKDiffableUpdating {
 
                 if #available(iOS 15.0, *) {
                     snapshot.reconfigureItems(childSnapshot.items)
-                } else {
+                }
+                else {
                     snapshot.reloadItems(childSnapshot.items)
                 }
             }
@@ -219,7 +236,7 @@ extension DKDiffableUpdater: DKDiffableUpdating {
 
 // MARK: - Helpers
 
-private extension DKDiffableUpdater {
+private extension DKDiffableDataSourceUpdater {
 
     func cleanSnapshots() {
         snapshot = nil

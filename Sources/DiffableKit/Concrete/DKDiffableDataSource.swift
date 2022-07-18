@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public final class DKDiffableDataSource<Configuration>: UICollectionViewDiffableDataSource<Configuration.SectionIdentifierType, Configuration.ItemIdentifierType> where Configuration: DKDiffableConfiguration {
+public final class DKDiffableDataSource<Configuration>: UICollectionViewDiffableDataSource<Configuration.SectionIdentifierType, Configuration.ItemIdentifierType> where Configuration: DKDiffableDataSourceConfiguration {
 
     public init(collectionView: UICollectionView, configuration: Configuration) {
         let cellProvider = configuration.makeCellProvider()

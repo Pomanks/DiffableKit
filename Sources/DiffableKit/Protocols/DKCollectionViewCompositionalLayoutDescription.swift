@@ -10,11 +10,23 @@ import UIKit
 
 @MainActor
 public protocol DKCollectionViewCompositionalLayoutDescription {
-    associatedtype SectionLayoutKind
-
+    associatedtype SectionIdentifierType: Hashable & RawRepresentable
     typealias SectionProvider = UICollectionViewCompositionalLayoutSectionProvider
+    typealias SectionIdentifierAtSectionIndexProvider = (Int) -> SectionIdentifierType?
 
+    var sectionIdentifierAtSectionIndexProvider: SectionIdentifierAtSectionIndexProvider? { get }
+
+    init(sectionIdentifierAtSectionIndexProvider: SectionIdentifierAtSectionIndexProvider?)
+
+    func sectionIdentifier(at sectionIndex: Int) -> SectionIdentifierType?
     func makeSectionProvider() -> SectionProvider
     func makeCompositionalLayoutConfiguration() -> UICollectionViewCompositionalLayoutConfiguration
     func makeCompositionalLayout() -> UICollectionViewCompositionalLayout
+}
+
+public extension DKCollectionViewCompositionalLayoutDescription {
+
+    func sectionIdentifier(at sectionIndex: Int) -> SectionIdentifierType? {
+        sectionIdentifierAtSectionIndexProvider?(sectionIndex)
+    }
 }

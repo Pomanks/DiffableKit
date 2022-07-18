@@ -1,5 +1,5 @@
 //
-//  DKDiffableUpdater.swift
+//  DKDiffableDataSourceUpdater.swift
 //
 //
 //  Created by Antoine Barré on 5/19/22.
@@ -9,9 +9,10 @@ import CoreData
 import Foundation
 import UIKit
 
-public final class DKDiffableUpdater<Configuration>: NSObject, NSFetchedResultsControllerDelegate where Configuration: DKDiffableConfiguration {
-    public typealias SectionIdentifierType = Configuration.SectionIdentifierType
-    public typealias ItemIdentifierType = Configuration.ItemIdentifierType
+@available(*, deprecated, renamed: "DKDiffableDataSourceUpdater")
+public final class DKDiffableUpdater {}
+
+public final class DKDiffableDataSourceUpdater<Configuration>: NSObject, NSFetchedResultsControllerDelegate where Configuration: DKDiffableDataSourceConfiguration {
 
     // MARK: Members
 
@@ -32,8 +33,6 @@ public final class DKDiffableUpdater<Configuration>: NSObject, NSFetchedResultsC
 
     public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
                            didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-
-        let snapshot = snapshot as NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
 
         fetchedResultsControllerDidChangeContentWithSnapshotHandler?(controller, snapshot)
     }
