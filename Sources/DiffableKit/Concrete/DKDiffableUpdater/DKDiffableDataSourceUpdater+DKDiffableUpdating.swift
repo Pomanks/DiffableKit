@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 // MARK: - DKDiffableDataSourceUpdating
 
@@ -16,9 +15,9 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
 
     // MARK: Updating Data
 
-    public func newSnapshot(handler: SnapshotHandler) -> Self {
+    public nonisolated func newSnapshot(handler: DKDiffableDataSourceSnapshotHandler) -> Self {
         var copy = self
-        var newSnapshot = NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>()
+        var newSnapshot = DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>()
 
         handler(&newSnapshot)
 
@@ -27,7 +26,7 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         return copy
     }
 
-    public func currentSnapshot(handler: SnapshotHandler) -> Self {
+    public nonisolated func currentSnapshot(handler: DKDiffableDataSourceSnapshotHandler) -> Self {
         var copy = self
         var currentSnapshot = snapshot ?? diffableDataSource.snapshot()
 
@@ -38,54 +37,69 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         return copy
     }
 
-    public func apply(_ snapshot: NSDiffableDataSourceSnapshotReference,
-                      animatingDifferences: Bool = true,
-                      completion: (() -> Void)? = nil) {
+    public nonisolated func apply(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
+                                  animatingDifferences: Bool) async {
 
-        let snapshot = snapshot as NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>
-
-        apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
+        await diffableDataSource.apply(snapshot, animatingDifferences: animatingDifferences)
     }
 
-    public func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
-                      animatingDifferences: Bool = true,
-                      completion: (() -> Void)? = nil) {
+    public nonisolated func apply(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
+                                  animatingDifferences: Bool = true,
+                                  completion: (() -> Void)? = nil) {
 
         diffableDataSource.apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
     }
 
-    public func apply(animatingDifferences: Bool = true, completion: (() -> Void)? = nil) {
-        if let updatedSnapshot = snapshot {
-            let animatingDifferences = sectionSnapshots.isEmpty ? animatingDifferences : false
+    public nonisolated func applySnapshotUsingReloadData(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) async {
 
-            apply(updatedSnapshot, animatingDifferences: animatingDifferences, completion: completion)
+        if #available(iOS 15.0, *) {
+            await diffableDataSource.applySnapshotUsingReloadData(snapshot)
         }
-        sectionSnapshots.forEach { section, snapshot in
-            diffableDataSource.apply(snapshot, to: section, animatingDifferences: animatingDifferences)
+        else {
+            await diffableDataSource.apply(snapshot, animatingDifferences: false)
         }
-//        cleanSnapshots()
     }
 
-    public func applySnapshotUsingReloadData(animatingDifferences: Bool = true, completion: (() -> Void)? = nil) {
-        guard #available(iOS 15.0, *) else {
-            apply(animatingDifferences: animatingDifferences, completion: completion)
+    public nonisolated func applySnapshotUsingReloadData(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
+                                                         completion: (() -> Void)? = nil) {
 
-            return
+        if #available(iOS 15.0, *) {
+            diffableDataSource.applySnapshotUsingReloadData(snapshot, completion: completion)
         }
-        if let updatedSnapshot = snapshot {
-            diffableDataSource.applySnapshotUsingReloadData(updatedSnapshot, completion: completion)
+        else {
+            diffableDataSource.apply(snapshot, animatingDifferences: false, completion: completion)
         }
-        sectionSnapshots.forEach { section, snapshot in
-            apply(snapshot, to: section, animatingDifferences: animatingDifferences)
+    }
+
+    public nonisolated func apply(animatingDifferences: Bool = true) async {
+        if let snapshot = snapshot {
+            let animatingDifferences = sectionSnapshots.isEmpty ? animatingDifferences : false
+
+            await apply(snapshot, animatingDifferences: animatingDifferences)
         }
-//        cleanSnapshots()
+
+        for (section, sectionSnapshot) in sectionSnapshots {
+            await diffableDataSource.apply(sectionSnapshot, to: section, animatingDifferences: animatingDifferences)
+        }
+    }
+
+    public nonisolated func apply(animatingDifferences: Bool, completion: (() -> Void)? = nil) {
+        if let snapshot = snapshot {
+            let animatingDifferences = sectionSnapshots.isEmpty ? animatingDifferences : false
+
+            apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
+        }
+
+        for (section, sectionSnapshot) in sectionSnapshots {
+            diffableDataSource.apply(sectionSnapshot, to: section, animatingDifferences: animatingDifferences)
+        }
     }
 
     // MARK: Updating Section Data
 
-    public func newSectionSnapshot(in section: SectionIdentifierType, handler: SectionSnapshotHandler) -> Self {
+    public nonisolated func newSectionSnapshot(in section: SectionIdentifierType, handler: DKDiffableDataSourceSectionSnapshotHandler) -> Self {
         var copy = self
-        var newSectionSnapshot = NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>()
+        var newSectionSnapshot = DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>()
 
         handler(&newSectionSnapshot)
 
@@ -94,8 +108,8 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         return copy
     }
 
-    public func currentSectionSnapshot(in section: SectionIdentifierType,
-                                       handler: SectionSnapshotHandler) -> Self {
+    public nonisolated func currentSectionSnapshot(in section: SectionIdentifierType,
+                                                   handler: DKDiffableDataSourceSectionSnapshotHandler) -> Self {
 
         var copy = self
         var currentSectionSnapshot = sectionSnapshots[section] ?? diffableDataSource.snapshot(for: section)
@@ -107,17 +121,23 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         return copy
     }
 
-    public func apply(_ snapshot: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
-                      to section: SectionIdentifierType,
-                      animatingDifferences: Bool = true,
-                      completion: (() -> Void)? = nil) {
+    public nonisolated func apply(_ snapshot: DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
+                                  to section: SectionIdentifierType,
+                                  animatingDifferences: Bool = true) async {
 
+        await diffableDataSource.apply(snapshot, to: section, animatingDifferences: animatingDifferences)
+    }
+
+    public nonisolated func apply(_ snapshot: DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
+                                  to section: SectionIdentifierType,
+                                  animatingDifferences: Bool = true,
+                                  completion: (() -> Void)? = nil) {
         diffableDataSource.apply(snapshot, to: section, animatingDifferences: animatingDifferences, completion: completion)
     }
 
     // MARK: Reloading Data
 
-    public func reloadItems(_ identifiers: [ItemIdentifierType]) -> Self {
+    public nonisolated func reloadItems(_ identifiers: [ItemIdentifierType]) -> Self {
         currentSnapshot { snapshot in
             let existingItemIdentifiers = identifiers.filter {
                 snapshot.indexOfItem($0) != nil
@@ -126,7 +146,7 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public func reconfigureItems(_ identifiers: [ItemIdentifierType] = []) -> Self {
+    public nonisolated func reconfigureItems(_ identifiers: [ItemIdentifierType] = []) -> Self {
         currentSnapshot { snapshot in
             let existingItemIdentifiers = identifiers.filter {
                 snapshot.indexOfItem($0) != nil
@@ -141,7 +161,7 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public func reconfigureItems(inSection identifier: SectionIdentifierType) -> Self {
+    public nonisolated func reconfigureItems(inSection identifier: SectionIdentifierType) -> Self {
         currentSnapshot { snapshot in
             let items = snapshot.itemIdentifiers(inSection: identifier)
 
@@ -154,7 +174,7 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public func reconfigureItemsInSections(_ identifiers: [SectionIdentifierType]) -> Self {
+    public nonisolated func reconfigureItemsInSections(_ identifiers: [SectionIdentifierType]) -> Self {
         currentSnapshot { snapshot in
             for identifier in identifiers where snapshot.sectionIdentifiers.contains(identifier) {
                 let items = snapshot.itemIdentifiers(inSection: identifier)
@@ -169,7 +189,7 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public func reloadSections(_ identifiers: [SectionIdentifierType] = []) -> Self {
+    public nonisolated func reloadSections(_ identifiers: [SectionIdentifierType] = []) -> Self {
         currentSnapshot { snapshot in
             let existingSectionIdentifiers = identifiers.filter {
                 snapshot.indexOfSection($0) != nil
@@ -178,34 +198,34 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public func expandOrCollapse(item: ItemIdentifierType, shouldCollapseOtherItemsWhenExpanded: Bool = true) -> Self {
-        let currentSnapshot = diffableDataSource.snapshot()
+    public nonisolated func expandOrCollapse(itemIdentifier: ItemIdentifierType, shouldCollapseOtherItemsWhenExpanded: Bool = true) -> Self {
+        let currentSnapshot = snapshot ?? diffableDataSource.snapshot()
 
-        guard let section = currentSnapshot.sectionIdentifier(containingItem: item) else {
+        guard let section = currentSnapshot.sectionIdentifier(containingItem: itemIdentifier) else {
             return self
         }
         return currentSectionSnapshot(in: section) { sectionSnapshot in
-            if sectionSnapshot.isExpanded(item) {
-                sectionSnapshot.collapse([item])
+            if sectionSnapshot.isExpanded(itemIdentifier) {
+                sectionSnapshot.collapse([itemIdentifier])
             }
             else {
-                sectionSnapshot.expand([item])
+                sectionSnapshot.expand([itemIdentifier])
 
                 if shouldCollapseOtherItemsWhenExpanded {
-                    sectionSnapshot.collapse(sectionSnapshot.rootItems.filter { $0 != item })
+                    sectionSnapshot.collapse(sectionSnapshot.rootItems.filter { $0 != itemIdentifier })
                 }
             }
         }
     }
 
-    public func expandOrCollapseParent(of item: ItemIdentifierType) -> Self {
-        let currentSnapshot = diffableDataSource.snapshot()
+    public nonisolated func expandOrCollapseParent(of itemIdentifier: ItemIdentifierType) -> Self {
+        let currentSnapshot = snapshot ?? diffableDataSource.snapshot()
 
-        guard let section = currentSnapshot.sectionIdentifier(containingItem: item) else {
+        guard let section = currentSnapshot.sectionIdentifier(containingItem: itemIdentifier) else {
             return self
         }
         return currentSectionSnapshot(in: section) { sectionSnapshot in
-            guard let parent = sectionSnapshot.parent(of: item) else {
+            guard let parent = sectionSnapshot.parent(of: itemIdentifier) else {
                 return
             }
             if sectionSnapshot.isExpanded(parent) {
@@ -217,14 +237,14 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public func reloadSiblings(of item: ItemIdentifierType, includingParent flag: Bool) -> Self {
+    public nonisolated func reloadSiblings(of itemIdentifier: ItemIdentifierType, includingParent flag: Bool) -> Self {
         currentSnapshot { snapshot in
-            guard let section = snapshot.sectionIdentifier(containingItem: item) else {
+            guard let section = snapshot.sectionIdentifier(containingItem: itemIdentifier) else {
                 return
             }
             let sectionSnapshot = diffableDataSource.snapshot(for: section)
 
-            if let parent = sectionSnapshot.parent(of: item) {
+            if let parent = sectionSnapshot.parent(of: itemIdentifier) {
                 let childSnapshot = sectionSnapshot.snapshot(of: parent, includingParent: flag)
 
                 if #available(iOS 15.0, *) {
@@ -235,15 +255,5 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
                 }
             }
         }
-    }
-}
-
-// MARK: - Helpers
-
-private extension DKDiffableDataSourceUpdater {
-
-    func cleanSnapshots() {
-//        snapshot = nil
-//        sectionSnapshots = [:]
     }
 }

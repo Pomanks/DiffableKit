@@ -7,94 +7,83 @@
 
 import CoreData
 import Foundation
-import UIKit
 
 @available(*, deprecated, renamed: "DKDiffableDataSourceUpdating")
 public protocol DKDiffableUpdating: DKDiffableDataSourceUpdating {}
 
 public protocol DKDiffableDataSourceUpdating {
-    associatedtype SectionIdentifierType: Hashable & RawRepresentable
-    associatedtype ItemIdentifierType: Hashable
+    associatedtype SectionIdentifierType: Hashable & Sendable & RawRepresentable
+    associatedtype ItemIdentifierType: Hashable & Sendable
 
-//    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshotReference) -> Void
-    typealias SnapshotHandler = (inout NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
-    typealias SectionSnapshotHandler = (inout NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>) -> Void
+    typealias DKDiffableDataSourceSnapshotHandler = (inout DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
+    typealias DKDiffableDataSourceSectionSnapshotHandler = (inout DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>) -> Void
 
-//    var fetchedResultsControllerDidChangeContentWithSnapshotHandler: FetchResultsControllerSnapshotHandler? { get set }
-    var snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>? { get }
-    var sectionSnapshots: [SectionIdentifierType: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>] { get }
+    var snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>? { get }
+    var sectionSnapshots: [SectionIdentifierType: DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>] { get }
 
     // MARK: Updating Data
 
-    func newSnapshot(handler: SnapshotHandler) -> Self
-    func currentSnapshot(handler: SnapshotHandler) -> Self
+    nonisolated func newSnapshot(handler: DKDiffableDataSourceSnapshotHandler) -> Self
+    nonisolated func currentSnapshot(handler: DKDiffableDataSourceSnapshotHandler) -> Self
 
-    func apply(animatingDifferences: Bool, completion: (() -> Void)?)
-    func applySnapshotUsingReloadData(animatingDifferences: Bool, completion: (() -> Void)?)
+    nonisolated func apply(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
+                           animatingDifferences: Bool) async
 
-    func apply(_ snapshot: NSDiffableDataSourceSnapshotReference,
-               animatingDifferences: Bool,
-               completion: (() -> Void)?)
+    nonisolated func apply(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
+                           animatingDifferences: Bool,
+                           completion: (() -> Void)?)
 
-    func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
-               animatingDifferences: Bool,
-               completion: (() -> Void)?)
+    nonisolated func applySnapshotUsingReloadData(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) async
+    nonisolated func applySnapshotUsingReloadData(_ snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
+                                                  completion: (() -> Void)?)
+
+    nonisolated func apply(animatingDifferences: Bool) async
+    nonisolated func apply(animatingDifferences: Bool, completion: (() -> Void)?)
 
     // MARK: Updating Section Data
 
-    func newSectionSnapshot(in section: SectionIdentifierType, handler: SectionSnapshotHandler) -> Self
-    func currentSectionSnapshot(in section: SectionIdentifierType, handler: SectionSnapshotHandler) -> Self
+    nonisolated func newSectionSnapshot(in section: SectionIdentifierType,
+                                        handler: DKDiffableDataSourceSectionSnapshotHandler) -> Self
 
-    func apply(_ snapshot: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
-               to section: SectionIdentifierType,
-               animatingDifferences: Bool,
-               completion: (() -> Void)?)
+    nonisolated func currentSectionSnapshot(in section: SectionIdentifierType,
+                                            handler: DKDiffableDataSourceSectionSnapshotHandler) -> Self
+
+    nonisolated func apply(_ snapshot: DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
+                           to section: SectionIdentifierType,
+                           animatingDifferences: Bool) async
+
+    nonisolated func apply(_ snapshot: DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
+                           to section: SectionIdentifierType,
+                           animatingDifferences: Bool,
+                           completion: (() -> Void)?)
 
     // MARK: Reloading Data
 
-    func reloadItems(_ identifiers: [ItemIdentifierType]) -> Self
-    func reconfigureItems(_ identifiers: [ItemIdentifierType]) -> Self
-    func reconfigureItems(inSection identifier: SectionIdentifierType) -> Self
-    func reconfigureItemsInSections(_ identifiers: [SectionIdentifierType]) -> Self
+    nonisolated func reloadItems(_ identifiers: [ItemIdentifierType]) -> Self
+    nonisolated func reconfigureItems(_ identifiers: [ItemIdentifierType]) -> Self
+    nonisolated func reconfigureItems(inSection identifier: SectionIdentifierType) -> Self
+    nonisolated func reconfigureItemsInSections(_ identifiers: [SectionIdentifierType]) -> Self
 
-    func reloadSections(_ identifiers: [SectionIdentifierType]) -> Self
+    nonisolated func reloadSections(_ identifiers: [SectionIdentifierType]) -> Self
 
-    func expandOrCollapse(item: ItemIdentifierType, shouldCollapseOtherItemsWhenExpanded: Bool) -> Self
-    func expandOrCollapseParent(of item: ItemIdentifierType) -> Self
-    func reloadSiblings(of item: ItemIdentifierType, includingParent flag: Bool) -> Self
+    nonisolated func expandOrCollapse(itemIdentifier: ItemIdentifierType, shouldCollapseOtherItemsWhenExpanded: Bool) -> Self
+    nonisolated func expandOrCollapseParent(of itemIdentifier: ItemIdentifierType) -> Self
+    nonisolated func reloadSiblings(of itemIdentifier: ItemIdentifierType, includingParent flag: Bool) -> Self
 }
 
-// MARK: - Convenience
-
-public extension DKDiffableDataSourceUpdating {
-
-    func apply(_ snapshot: NSDiffableDataSourceSnapshotReference,
-               animatingDifferences: Bool = true,
-               completion: (() -> Void)? = nil) {
-
-        apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
-    }
-
-    func apply(_ snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>,
-               animatingDifferences: Bool = true,
-               completion: (() -> Void)? = nil) {
-
-        apply(snapshot, animatingDifferences: animatingDifferences, completion: completion)
-    }
-
-    func apply(animatingDifferences: Bool = true, completion: (() -> Void)? = nil) {
-        apply(animatingDifferences: animatingDifferences, completion: completion)
-    }
-
-    func applySnapshotUsingReloadData(animatingDifferences: Bool = true, completion: (() -> Void)? = nil) {
-        applySnapshotUsingReloadData(animatingDifferences: animatingDifferences, completion: completion)
-    }
-
-    func apply(_ snapshot: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
-               to section: SectionIdentifierType,
-               animatingDifferences: Bool = true,
-               completion: (() -> Void)? = nil) {
-
-        apply(snapshot, to: section, animatingDifferences: animatingDifferences, completion: completion)
-    }
-}
+// struct Foo: Hashable {
+//
+//    let string: String?
+//    let int: Int?
+// }
+//
+// struct Bar: Hashable {
+//
+//    let double: Double?
+//    let float: Float?
+// }
+//
+// enum FooBar: Hashable {
+//    case foo(Foo)
+//    case bar(Bar)
+// }

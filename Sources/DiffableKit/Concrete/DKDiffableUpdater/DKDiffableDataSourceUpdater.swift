@@ -7,7 +7,6 @@
 
 import CoreData
 import Foundation
-import UIKit
 
 @available(*, deprecated, renamed: "DKDiffableDataSourceUpdater")
 public final class DKDiffableUpdater {}
@@ -16,10 +15,8 @@ public struct DKDiffableDataSourceUpdater<Configuration> where Configuration: DK
 
     // MARK: Members
 
-//    public var fetchedResultsControllerDidChangeContentWithSnapshotHandler: FetchResultsControllerSnapshotHandler?
-
-    public internal(set) var snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>?
-    public internal(set) var sectionSnapshots: [SectionIdentifierType: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>] = [:]
+    public internal(set) var snapshot: DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>?
+    public internal(set) var sectionSnapshots: [SectionIdentifierType: DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>] = [:]
 
     // MARK: Initializers
 
@@ -28,12 +25,4 @@ public struct DKDiffableDataSourceUpdater<Configuration> where Configuration: DK
     public init(diffableDataSource: DKDiffableDataSource<Configuration>) {
         self.diffableDataSource = diffableDataSource
     }
-
-//    // MARK: NSFetchedResultsControllerDelegate
-//
-//    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-//                           didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-//
-//        fetchedResultsControllerDidChangeContentWithSnapshotHandler?(controller, snapshot)
-//    }
 }
