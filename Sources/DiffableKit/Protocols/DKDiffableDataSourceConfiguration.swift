@@ -13,8 +13,8 @@ public protocol DKDiffableConfiguration: DKDiffableDataSourceConfiguration {}
 
 @MainActor
 public protocol DKDiffableDataSourceConfiguration {
-    associatedtype SectionIdentifierType: Hashable & Sendable & RawRepresentable
-    associatedtype ItemIdentifierType: Hashable & Sendable
+    associatedtype SectionIdentifierType: Hashable & RawRepresentable
+    associatedtype ItemIdentifierType: Hashable
     associatedtype ContentType
 
     typealias DKCollectionViewDiffableDataSource = UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>

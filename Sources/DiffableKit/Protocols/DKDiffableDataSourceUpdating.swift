@@ -12,8 +12,8 @@ import Foundation
 public protocol DKDiffableUpdating: DKDiffableDataSourceUpdating {}
 
 public protocol DKDiffableDataSourceUpdating {
-    associatedtype SectionIdentifierType: Hashable & Sendable & RawRepresentable
-    associatedtype ItemIdentifierType: Hashable & Sendable
+    associatedtype SectionIdentifierType: Hashable & RawRepresentable
+    associatedtype ItemIdentifierType: Hashable
 
     typealias DKDiffableDataSourceSnapshotHandler = (inout DKDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
     typealias DKDiffableDataSourceSectionSnapshotHandler = (inout DKDiffableDataSourceSectionSnapshot<ItemIdentifierType>) -> Void
