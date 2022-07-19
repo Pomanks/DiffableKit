@@ -12,11 +12,11 @@ import UIKit
 @available(*, deprecated, renamed: "DKDiffableDataSourceUpdater")
 public final class DKDiffableUpdater {}
 
-public final class DKDiffableDataSourceUpdater<Configuration>: NSObject, NSFetchedResultsControllerDelegate where Configuration: DKDiffableDataSourceConfiguration {
+public struct DKDiffableDataSourceUpdater<Configuration> where Configuration: DKDiffableDataSourceConfiguration {
 
     // MARK: Members
 
-    public var fetchedResultsControllerDidChangeContentWithSnapshotHandler: FetchResultsControllerSnapshotHandler?
+//    public var fetchedResultsControllerDidChangeContentWithSnapshotHandler: FetchResultsControllerSnapshotHandler?
 
     public internal(set) var snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>?
     public internal(set) var sectionSnapshots: [SectionIdentifierType: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>] = [:]
@@ -29,11 +29,11 @@ public final class DKDiffableDataSourceUpdater<Configuration>: NSObject, NSFetch
         self.diffableDataSource = diffableDataSource
     }
 
-    // MARK: NSFetchedResultsControllerDelegate
-
-    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                           didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-
-        fetchedResultsControllerDidChangeContentWithSnapshotHandler?(controller, snapshot)
-    }
+//    // MARK: NSFetchedResultsControllerDelegate
+//
+//    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
+//                           didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+//
+//        fetchedResultsControllerDidChangeContentWithSnapshotHandler?(controller, snapshot)
+//    }
 }

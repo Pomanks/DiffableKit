@@ -23,3 +23,11 @@ public protocol DKDiffableDataSourceContainer: UIViewController {
     var dataSourceConfiguration: DataSourceConfiguration { get }
     var diffableDataSource: DKDiffableDataSource<DataSourceConfiguration> { get }
 }
+
+public extension DKDiffableDataSourceContainer where Self: DKDiffableDataSourceUpdaterProviding {
+
+    /// This property will automatically be computed from your configuration.
+    var diffableDataSourceUpdater: DKDiffableDataSourceUpdater<DataSourceConfiguration> {
+        .init(diffableDataSource: diffableDataSource)
+    }
+}

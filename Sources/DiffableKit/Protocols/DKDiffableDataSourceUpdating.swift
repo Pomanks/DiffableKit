@@ -9,22 +9,25 @@ import CoreData
 import Foundation
 import UIKit
 
-public protocol DKDiffableDataSourceUpdating: NSObject, NSFetchedResultsControllerDelegate {
+@available(*, deprecated, renamed: "DKDiffableDataSourceUpdating")
+public protocol DKDiffableUpdating: DKDiffableDataSourceUpdating {}
+
+public protocol DKDiffableDataSourceUpdating {
     associatedtype SectionIdentifierType: Hashable & RawRepresentable
     associatedtype ItemIdentifierType: Hashable
 
-    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshotReference) -> Void
+//    typealias FetchResultsControllerSnapshotHandler = (NSFetchedResultsController<NSFetchRequestResult>, NSDiffableDataSourceSnapshotReference) -> Void
     typealias SnapshotHandler = (inout NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>) -> Void
     typealias SectionSnapshotHandler = (inout NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>) -> Void
 
-    var fetchedResultsControllerDidChangeContentWithSnapshotHandler: FetchResultsControllerSnapshotHandler? { get set }
+//    var fetchedResultsControllerDidChangeContentWithSnapshotHandler: FetchResultsControllerSnapshotHandler? { get set }
     var snapshot: NSDiffableDataSourceSnapshot<SectionIdentifierType, ItemIdentifierType>? { get }
     var sectionSnapshots: [SectionIdentifierType: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>] { get }
 
     // MARK: Updating Data
 
-    func newSnapshot(handler: @escaping SnapshotHandler) -> Self
-    func currentSnapshot(handler: @escaping SnapshotHandler) -> Self
+    func newSnapshot(handler: SnapshotHandler) -> Self
+    func currentSnapshot(handler: SnapshotHandler) -> Self
 
     func apply(animatingDifferences: Bool, completion: (() -> Void)?)
     func applySnapshotUsingReloadData(animatingDifferences: Bool, completion: (() -> Void)?)
@@ -39,8 +42,8 @@ public protocol DKDiffableDataSourceUpdating: NSObject, NSFetchedResultsControll
 
     // MARK: Updating Section Data
 
-    func newSectionSnapshot(in section: SectionIdentifierType, handler: @escaping SectionSnapshotHandler) -> Self
-    func currentSectionSnapshot(in section: SectionIdentifierType, handler: @escaping SectionSnapshotHandler) -> Self
+    func newSectionSnapshot(in section: SectionIdentifierType, handler: SectionSnapshotHandler) -> Self
+    func currentSectionSnapshot(in section: SectionIdentifierType, handler: SectionSnapshotHandler) -> Self
 
     func apply(_ snapshot: NSDiffableDataSourceSectionSnapshot<ItemIdentifierType>,
                to section: SectionIdentifierType,
