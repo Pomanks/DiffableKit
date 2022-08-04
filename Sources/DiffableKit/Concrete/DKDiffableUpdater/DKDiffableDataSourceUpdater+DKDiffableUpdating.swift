@@ -83,7 +83,7 @@ extension DKDiffableDataSourceUpdater: DKDiffableDataSourceUpdating {
         }
     }
 
-    public nonisolated func apply(animatingDifferences: Bool, completion: (() -> Void)? = nil) {
+    public nonisolated func apply(animatingDifferences: Bool = true, completion: (() -> Void)? = nil) {
         if let snapshot = snapshot {
             let animatingDifferences = sectionSnapshots.isEmpty ? animatingDifferences : false
 

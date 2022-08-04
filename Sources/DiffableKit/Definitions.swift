@@ -1,5 +1,5 @@
 //
-//  Aliases.swift
+//  Definitions.swift
 //
 //
 //  Created by Antoine Barré on 7/19/22.
