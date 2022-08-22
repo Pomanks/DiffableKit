@@ -41,10 +41,16 @@ public final class DKCollectionView<LayoutDescription>: UICollectionView where L
         isPrefetchingEnabled = prefetchDataSource != nil
     }
 
+    ///
+    /// Adds `self` as a subview of the `superview` and sets its contraints to fill its superview.
+    ///
+    /// - Warning: This method sets `translatesAutoresizingMaskIntoConstraints` to `false`.
+    ///
     public func add(to superview: UIView?) {
         guard let view = superview else {
             return
         }
+        view.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(self)
 
         NSLayoutConstraint.activate([

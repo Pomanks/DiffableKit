@@ -15,16 +15,20 @@ public protocol DKDiffableConfiguration: DKDiffableDataSourceConfiguration {}
 public protocol DKDiffableDataSourceConfiguration {
     associatedtype SectionIdentifierType: Hashable & RawRepresentable
     associatedtype ItemIdentifierType: Hashable
-    associatedtype ContentType
+    associatedtype SupplementaryViewContentType
+    associatedtype CellContentType
 
     typealias DKCollectionViewDiffableDataSource = UICollectionViewDiffableDataSource<SectionIdentifierType, ItemIdentifierType>
-    typealias ContentProvider = (ItemIdentifierType, IndexPath) -> ContentType
+    typealias SupplementaryViewContentProvider = (BoundaryElementKind?, String?, IndexPath) -> SupplementaryViewContentType
+    typealias CellContentProvider = (ItemIdentifierType, IndexPath) -> CellContentType
     typealias SupplementaryViewProvider = DKCollectionViewDiffableDataSource.SupplementaryViewProvider
     typealias CellProvider = DKCollectionViewDiffableDataSource.CellProvider
 
-    var contentProvider: ContentProvider { get }
+    var supplementaryViewContentProvider: SupplementaryViewContentProvider? { get }
+    var cellContentProvider: CellContentProvider { get }
 
-    init(contentProvider: @escaping ContentProvider)
+    init(supplementaryViewContentProvider: SupplementaryViewContentProvider?,
+         cellContentProvider: @escaping CellContentProvider)
 
     /// **Optional**: This method return nil by default.
     func makeSupplementaryViewProvider() -> SupplementaryViewProvider?
