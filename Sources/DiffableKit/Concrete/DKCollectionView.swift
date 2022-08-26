@@ -42,15 +42,17 @@ public final class DKCollectionView<LayoutDescription>: UICollectionView where L
     }
 
     ///
-    /// Adds `self` as a subview of the `superview` and sets its contraints to fill its superview.
+    /// Adds `self` as a subview of the `superview` and sets its constraints to fill its superview.
     ///
     /// - Warning: This method sets `translatesAutoresizingMaskIntoConstraints` to `false`.
     ///
-    public func add(to superview: UIView?) {
+    public func add(to superview: UIView?, preservingSuperviewLayoutMargins: Bool = true) {
         guard let view = superview else {
             return
         }
-        view.translatesAutoresizingMaskIntoConstraints = false
+        preservesSuperviewLayoutMargins = preservingSuperviewLayoutMargins
+        translatesAutoresizingMaskIntoConstraints = false
+
         view.addSubview(self)
 
         NSLayoutConstraint.activate([
