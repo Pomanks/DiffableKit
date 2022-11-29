@@ -27,9 +27,6 @@ public protocol DKDiffableDataSourceConfiguration {
     var supplementaryViewContentProvider: SupplementaryViewContentProvider? { get }
     var cellContentProvider: CellContentProvider { get }
 
-    init(supplementaryViewContentProvider: SupplementaryViewContentProvider?,
-         cellContentProvider: @escaping CellContentProvider)
-
     /// **Optional**: This method return nil by default.
     func makeSupplementaryViewProvider() -> SupplementaryViewProvider?
     func makeCellProvider() -> CellProvider

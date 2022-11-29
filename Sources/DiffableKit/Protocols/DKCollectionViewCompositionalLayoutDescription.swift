@@ -16,8 +16,6 @@ public protocol DKCollectionViewCompositionalLayoutDescription {
 
     var sectionIdentifierAtSectionIndexProvider: SectionIdentifierAtSectionIndexProvider { get }
 
-    init(sectionIdentifierAtSectionIndexProvider: @escaping SectionIdentifierAtSectionIndexProvider)
-
     func sectionIdentifier(at sectionIndex: Int) -> SectionIdentifierType?
     func makeSectionProvider() -> SectionProvider
     func makeCompositionalLayoutConfiguration() -> UICollectionViewCompositionalLayoutConfiguration
@@ -38,7 +36,7 @@ public extension DKCollectionViewCompositionalLayoutDescription {
             heightDimension: .estimated(44.0)
         )
 
-        if let alignment = alignment {
+        if let alignment {
             return .init(layoutSize: layoutSize, elementKind: elementKind.rawValue, alignment: alignment)
         }
 
@@ -51,6 +49,14 @@ public extension DKCollectionViewCompositionalLayoutDescription {
              .sectionFooter,
              .separator:
             return .init(layoutSize: layoutSize, elementKind: elementKind.rawValue, alignment: .bottom)
+
+        case .uiKitHeader,
+             .uiKitFooter:
+            fatalError("""
+            This value should only be used when using:
+                - a compositional layout that contains only list sections with `UICollectionViewCompositionalLayout.list(using:)`
+                - a list section with `NSCollectionLayoutSection.list(using:layoutEnvironment:)`
+            """)
         }
     }
 
@@ -63,7 +69,7 @@ public extension DKCollectionViewCompositionalLayoutDescription {
             heightDimension: .estimated(44.0)
         )
 
-        guard let itemAnchor = itemAnchor else {
+        guard let itemAnchor else {
             return .init(layoutSize: layoutSize, elementKind: elementKind, containerAnchor: containerAnchor)
         }
         return .init(layoutSize: layoutSize, elementKind: elementKind, containerAnchor: containerAnchor, itemAnchor: itemAnchor)

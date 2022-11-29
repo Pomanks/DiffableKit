@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 ///
 /// The `BoundaryElementKind` enum provides a safe type for creating supplementary items and registering them using a supplementary registration (please refer to [UICollectionView.SupplementaryRegistration](https://developer.apple.com/documentation/uikit/uicollectionview/supplementaryregistration) for more information).
@@ -68,4 +69,21 @@ public enum BoundaryElementKind: String {
 
     // Custom Separator item
     case separator = "separator-element-kind"
+
+    case uiKitHeader
+    case uiKitFooter
+
+    /// Creates a new instance with the specified UIKit rawValue (e.g. `UICollectionView.elementKindSectionHeader` or `UICollectionView.elementKindSectionFooter`).
+    public init?(uiKitRawValue rawValue: String) {
+        switch rawValue {
+        case UICollectionView.elementKindSectionHeader:
+            self = .uiKitHeader
+
+        case UICollectionView.elementKindSectionFooter:
+            self = .uiKitFooter
+
+        default:
+            return nil
+        }
+    }
 }
