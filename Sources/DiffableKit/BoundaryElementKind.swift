@@ -60,22 +60,61 @@ import UIKit
 ///
 public enum BoundaryElementKind: String {
     // Global Header/Footer
-    case layoutHeader = "layout-header-element-kind"
-    case layoutFooter = "layout-footer-element-kind"
+    case layoutHeader
+    case layoutFooter
 
     // Section Header/Footer
-    case sectionHeader = "section-header-element-kind"
-    case sectionFooter = "section-footer-element-kind"
+    case sectionHeader
+    case sectionFooter
 
     // Custom Separator item
-    case separator = "separator-element-kind"
+    case separator
 
     case uiKitHeader
     case uiKitFooter
 
-    /// Creates a new instance with the specified UIKit rawValue (e.g. `UICollectionView.elementKindSectionHeader` or `UICollectionView.elementKindSectionFooter`).
-    public init?(uiKitRawValue rawValue: String) {
+    public var rawValue: String {
+        switch self {
+        case .layoutHeader:
+            return "layout-header-element-kind"
+
+        case .layoutFooter:
+            return "layout-footer-element-kind"
+
+        case .sectionHeader:
+            return "section-header-element-kind"
+
+        case .sectionFooter:
+            return "section-footer-element-kind"
+
+        case .separator:
+            return "separator-element-kind"
+
+        case .uiKitHeader:
+            return UICollectionView.elementKindSectionHeader
+
+        case .uiKitFooter:
+            return UICollectionView.elementKindSectionFooter
+        }
+    }
+
+    public init?(rawValue: String) {
         switch rawValue {
+        case "layout-header-element-kind":
+            self = .layoutHeader
+
+        case "layout-footer-element-kind":
+            self = .layoutFooter
+
+        case "section-header-element-kind":
+            self = .sectionHeader
+
+        case "section-footer-element-kind":
+            self = .sectionFooter
+
+        case "separator-element-kind":
+            self = .separator
+
         case UICollectionView.elementKindSectionHeader:
             self = .uiKitHeader
 
